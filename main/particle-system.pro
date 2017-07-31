@@ -28,15 +28,13 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     particlewidget.cpp \
-    testwidget.cpp \
-    myopenglrenderer.cpp
+    testwidget.cpp
 
 HEADERS += \
     mainwindow.h \
     particlewidget.h \
     particle.h \
-    testwidget.h \
-    myopenglrenderer.h
+    testwidget.h
 
 FORMS += \
         mainwindow.ui

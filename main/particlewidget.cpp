@@ -166,11 +166,11 @@ void ParticleWidget::initShaders()
 {
 
     // Compile vertex shader
-    if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/ParticleVertex.glsl"))
+    if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/ParticleVertex.glsl"))
         close();
 
     // Compile fragment shader
-    if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/ParticleFragment.glsl"))
+    if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/ParticleFragment.glsl"))
         close();
 
     // Link shader pipeline
