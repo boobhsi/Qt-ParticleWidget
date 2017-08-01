@@ -11,21 +11,30 @@
 #include <QTime>
 #include <QTimer>
 #include "particle.h"
+#include "particlesystemfeatures.h"
+#include "util.h"
+#include "camera.h"
 
 class ParticleWidget  : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 public:
-    explicit ParticleWidget(QWidget* parent = Q_NULLPTR, unsigned pnInput = 1000, float scaleInput = 1);
+    explicit ParticleWidget(QWidget* parent = Q_NULLPTR);
     ~ParticleWidget();
+
     void setEmitterPosition(QVector3D input);
     void setCameraPosition(QVector3D input);
+
+    void setEmitterShape(EmitterShape& shape);
+    void setEnviromentPhysic(Physic& enviroment);
+    void setEmitParameter(EmitParameter& parameter);
+    void setActiveCamera(Camera& ac);
+
     void play();
     void stop();
     bool isPlaying();
 
 private:
     Particle* mParticleContainer;
-
     GLfloat* mParticlePosSizeData;
     GLubyte* mParticleColorData;
 
@@ -40,7 +49,6 @@ private:
             0.5f, 0.5f, 0.0f
     };
 
-    const float zNear = 3.0, zFar = 100.0, fov = 45.0;
     float aspect;
 
     GLuint mVertexArrayID;
@@ -54,16 +62,19 @@ private:
     QOpenGLShaderProgram mProgram;
     
     QMatrix4x4 mProjectionMatrix;
-    QVector3D mCameraPosition;
     QVector3D mEmitterPosition;
     
     QTime mFromStartTime;
     
-    unsigned mMaxParticleNum;
+    EmitterShape mShape;
+    EmitParameter mParameter;
+    Physic mParticlePhysic;
+
     unsigned mCurrentParticleNum;
     bool mIsPlaying;
-    float mParticleScale;
     QString mTexturePath;
+
+    Camera activeCamera;
     
     void initializeGL() override;
     void paintGL() override;
@@ -71,12 +82,13 @@ private:
     
     void initShaders();
     void initTextures();
-    
-    int findUnusedParticle();
+
     void sortParticle();
     void updateParticles();
     void calculateProjectionMatrix();
-    
+    void genStartPos(Particle& p);
+    void genPhysicalForce(float sec, Particle& p);
+
 };
 
 #endif // PARTICLEWIDGET_H

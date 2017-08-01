@@ -28,19 +28,26 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     particlewidget.cpp \
-    testwidget.cpp
+    testwidget.cpp \
+    util.cpp \
+    camera.cpp \
+    editor.cpp
 
 HEADERS += \
     mainwindow.h \
     particlewidget.h \
     particle.h \
-    testwidget.h
+    testwidget.h \
+    particlesystemfeatures.h \
+    util.h \
+    camera.h \
+    editor.h
 
 FORMS += \
         mainwindow.ui
 
 DISTFILES += \
-    shaders/ParticleFragment.glsl \
-    shaders/ParticleVertex.glsl \
-    shaders/TestFragment.glsl \
-    shaders/TestVertex.glsl
+    ../shaders/ParticleFragment.glsl \
+    ../shaders/ParticleVertex.glsl \
+    ../shaders/TestFragment.glsl \
+    ../shaders/TestVertex.glsl
