@@ -1,13 +1,10 @@
-#define GRAVITY QVector3D(0.0f,-9.8f,0.0f)
 #include "particlewidget.h"
 
-ParticleWidget::ParticleWidget(QWidget* parent) :
-    QOpenGLWidget(parent)
-{
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(17); //60fps
+#define OPENGLFUNC parent->context()->extraFunctions()
 
+ParticleWidget::ParticleWidget(CompositionWidget *parent) :
+    Solid(parent)
+{
     mParticleContainer = new Particle[mParameter.maxParticleNum];
     mParticlePosSizeData = new GLfloat[mParameter.maxParticleNum * 4];
     mParticleColorData = new GLubyte[mParameter.maxParticleNum * 4];
@@ -22,111 +19,83 @@ ParticleWidget::~ParticleWidget()
     delete [] mParticleContainer;
     delete [] mParticlePosSizeData;
     delete [] mParticleColorData;
-    delete timer;
 }
 
 void ParticleWidget::initializeGL()
 {
-    //Initialize QOpenGL(Extra)Functions for current context
-    initializeOpenGLFunctions();
-    
-    //Set background to black
-    glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
-
     qDebug() << "Initialize shaders";
     initShaders();
     qDebug() << "Initialize texture";
     initTextures();
 
-    mProjectionMatrixID = glGetUniformLocation(mProgram.programId(), "mvp");
-    mTextureID = glGetUniformLocation(mProgram.programId(), "textureSampler");
+    mProjectionMatrixID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "mvp");
+    mTextureID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "textureSampler");
+
+    OPENGLFUNC->glGenVertexArrays(1, &mVertexArrayID);
+    OPENGLFUNC->glBindVertexArray(mVertexArrayID);
     
-    //Enable depth test
-    glEnable(GL_DEPTH_TEST);
-
-    // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
-
-    glGenVertexArrays(1, &mVertexArrayID);
-    glBindVertexArray(mVertexArrayID);
+    OPENGLFUNC->glGenBuffers(1, &mParticleVertexBuffer);
+    OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticleVertexBuffer);
+    OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, sizeof(mParticleVertexData), mParticleVertexData, GL_STATIC_DRAW);
     
-    glGenBuffers(1, &mParticleVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, mParticleVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(mParticleVertexData), mParticleVertexData, GL_STATIC_DRAW);
+    OPENGLFUNC->glGenBuffers(1, &mParticlePosSizeBuffer);
+    OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticlePosSizeBuffer);
+    OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
     
-    glGenBuffers(1, &mParticlePosSizeBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, mParticlePosSizeBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-    
-    glGenBuffers(1, &mParticleColorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, mParticleColorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+    OPENGLFUNC->glGenBuffers(1, &mParticleColorBuffer);
+    OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticleColorBuffer);
+    OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
 
-    qDebug() << "Initialized!";
-}
-
-void ParticleWidget::resizeGL(int w, int h)
-{
-    // Calculate aspect ratio
-    aspect = float(w) / float(h ? h : 1);
-
-    mProjectionMatrix = activeCamera.calculateProjectionMatrix(aspect);
+    qDebug() << "Particle Initialized!";
 }
 
 void ParticleWidget::stop() {
-    glDeleteBuffers(1, &mParticleVertexBuffer);
-    glDeleteBuffers(1, &mParticlePosSizeBuffer);
-    glDeleteBuffers(1, &mParticleColorBuffer);
-    glDeleteProgram(mProgram.programId());
-    glDeleteVertexArrays(1, &mVertexArrayID);
+    OPENGLFUNC->glDeleteBuffers(1, &mParticleVertexBuffer);
+    OPENGLFUNC->glDeleteBuffers(1, &mParticlePosSizeBuffer);
+    OPENGLFUNC->glDeleteBuffers(1, &mParticleColorBuffer);
+    OPENGLFUNC->glDeleteProgram(mProgram.programId());
+    OPENGLFUNC->glDeleteVertexArrays(1, &mVertexArrayID);
     mIsPlaying = false;
 }
 
-void ParticleWidget::paintGL()
+void ParticleWidget::render()
 {
     if(mIsPlaying) {
         updateParticles();
 
-        qDebug() << "painting";
-        // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        OPENGLFUNC->glUseProgram(mProgram.programId());
 
-        glUseProgram(mProgram.programId());
-
-        glActiveTexture(GL_TEXTURE0);
+        OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
         mTexture->bind();
-        glUniform1i(mTextureID, 0);
+        OPENGLFUNC->glUniform1i(mTextureID, 0);
 
-        glUniformMatrix4fv(mProjectionMatrixID, 1, GL_FALSE, (GLfloat*)mProjectionMatrix.data());
+        OPENGLFUNC->glUniformMatrix4fv(mProjectionMatrixID, 1, GL_FALSE, (GLfloat*)parent->getActiveCamera().getProjectionMatrix().data());
 
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, mParticleVertexBuffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        OPENGLFUNC->glEnableVertexAttribArray(0);
+        OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticleVertexBuffer);
+        OPENGLFUNC->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, mParticlePosSizeBuffer);
-        glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, mCurrentParticleNum * sizeof(GLfloat) * 4, mParticlePosSizeData);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        OPENGLFUNC->glEnableVertexAttribArray(1);
+        OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticlePosSizeBuffer);
+        OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+        OPENGLFUNC->glBufferSubData(GL_ARRAY_BUFFER, 0, mCurrentParticleNum * sizeof(GLfloat) * 4, mParticlePosSizeData);
+        OPENGLFUNC->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, mParticleColorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, mCurrentParticleNum * sizeof(GLubyte) * 4 , mParticleColorData);
-        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)0);
+        OPENGLFUNC->glEnableVertexAttribArray(2);
+        OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mParticleColorBuffer);
+        OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+        OPENGLFUNC->glBufferSubData(GL_ARRAY_BUFFER, 0, mCurrentParticleNum * sizeof(GLubyte) * 4 , mParticleColorData);
+        OPENGLFUNC->glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*)0);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        OPENGLFUNC->glVertexAttribDivisor(0, 0);
+        OPENGLFUNC->glVertexAttribDivisor(1, 1);
+        OPENGLFUNC->glVertexAttribDivisor(2, 1);
 
-        glVertexAttribDivisor(0, 0);
-        glVertexAttribDivisor(1, 1);
-        glVertexAttribDivisor(2, 1);
+        OPENGLFUNC->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, mCurrentParticleNum);
 
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, mCurrentParticleNum);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
+        OPENGLFUNC->glDisableVertexAttribArray(0);
+        OPENGLFUNC->glDisableVertexAttribArray(1);
+        OPENGLFUNC->glDisableVertexAttribArray(2);
     }
     return;
 }
@@ -142,19 +111,19 @@ void ParticleWidget::initShaders()
 
     // Compile vertex shader
     if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/ParticleVertex.glsl"))
-        close();
+        parent->close();
 
     // Compile fragment shader
     if (!mProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/ParticleFragment.glsl"))
-        close();
+        parent->close();
 
     // Link shader pipeline
     if (!mProgram.link())
-        close();
+        parent->close();
 
     // Bind shader pipeline for use
     if (!mProgram.bind())
-        close();
+        parent->close();
 
     qDebug() << "Shaders initialized!";
 }
@@ -301,7 +270,7 @@ void ParticleWidget::genStartPos(Particle& p) {
         QVector3D threeD(twoD.x(), twoD.y(), mEmitterPosition.z());
         p.pos = threeD;
         p.speed = genRandomDir3D(mShape.angle) * mParameter.startSpeed;
-        p.cameraDistance = (p.pos - activeCamera.getCameraPosition()).length();
+        p.cameraDistance = (p.pos - parent->getActiveCamera().getCameraPosition()).length();
     }
     else{
         //...
@@ -311,14 +280,10 @@ void ParticleWidget::genStartPos(Particle& p) {
 
 void ParticleWidget::genPhysicalForce(float sec, Particle& p) {
     QVector3D force(0.0f, 0.0f, 0.0f);
-    force += GRAVITY * mParticlePhysic.gravityModifier;
+    force += Gravity * mParticlePhysic.gravityModifier;
     p.speed += force * sec * 0.5; //assume mass of particle is 1 and the force is constant.
     p.pos += p.speed * sec; //displacement equal to average speed multiply duration.
-    p.cameraDistance = (p.pos - activeCamera.getCameraPosition()).length();
+    p.cameraDistance = (p.pos - parent->getActiveCamera().getCameraPosition()).length();
 }
 
-void ParticleWidget::setActiveCamera(Camera &ac) {
-    activeCamera = ac;
-}
-
-
+const QVector3D ParticleWidget::Gravity = QVector3D(0.0f, -9.8f, 0.0f);

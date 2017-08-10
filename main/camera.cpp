@@ -7,7 +7,7 @@ Camera::Camera(float inear, float ifar, float ifov) : mCameraPosition(0.0, 0.0, 
     fov = ifov;
 }
 
-QMatrix4x4 Camera::calculateProjectionMatrix(float aspect) {
+void Camera::calculateProjectionMatrix(float aspect) {
     // Reset projection
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
@@ -22,14 +22,16 @@ QMatrix4x4 Camera::calculateProjectionMatrix(float aspect) {
     matrix.translate(-mCameraPosition);
     qDebug() << matrix;
 
-    projectionMatrix = projectionMatrix * matrix;
-    qDebug() << projectionMatrix;
-
-    return projectionMatrix;
+    mProjectionMatrix = projectionMatrix * matrix;
+    qDebug() << mProjectionMatrix;
 }
 
-const QVector3D& Camera::getCameraPosition() {
+const QVector3D& Camera::getCameraPosition() const {
     return mCameraPosition;
+}
+
+const QMatrix4x4& Camera::getProjectionMatrix() const {
+    return mProjectionMatrix;
 }
 
 void Camera::setCameraPosition(const QVector3D &input) {

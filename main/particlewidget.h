@@ -1,12 +1,9 @@
 #ifndef PARTICLEWIDGET_H
 #define PARTICLEWIDGET_H
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
-#include <QOpenGLExtraFunctions>
-#include <QWidget>
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLTexture>
 #include <QTime>
 #include <QTimer>
@@ -14,24 +11,24 @@
 #include "particlesystemfeatures.h"
 #include "util.h"
 #include "camera.h"
+#include "solid.h"
 
-class ParticleWidget  : public QOpenGLWidget, protected QOpenGLExtraFunctions
+class ParticleWidget : public Solid, protected QOpenGLExtraFunctions
 {
 public:
-    explicit ParticleWidget(QWidget* parent = Q_NULLPTR);
+    explicit ParticleWidget(CompositionWidget* parent);
     ~ParticleWidget();
 
     void setEmitterPosition(QVector3D input);
-    void setCameraPosition(QVector3D input);
-
     void setEmitterShape(EmitterShape& shape);
     void setEnviromentPhysic(Physic& enviroment);
     void setEmitParameter(EmitParameter& parameter);
-    void setActiveCamera(Camera& ac);
 
     void play();
     void stop();
     bool isPlaying();
+
+    void render() override;
 
 private:
     Particle* mParticleContainer;
@@ -40,8 +37,6 @@ private:
 
     QOpenGLTexture *mTexture;
 
-    QTimer* timer;
-
     const GLfloat mParticleVertexData[12] = {
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
@@ -49,7 +44,7 @@ private:
             0.5f, 0.5f, 0.0f
     };
 
-    float aspect;
+    static const QVector3D Gravity;
 
     GLuint mVertexArrayID;
     GLuint mParticleVertexBuffer;
@@ -61,7 +56,6 @@ private:
     
     QOpenGLShaderProgram mProgram;
     
-    QMatrix4x4 mProjectionMatrix;
     QVector3D mEmitterPosition;
     
     QTime mFromStartTime;
@@ -76,19 +70,14 @@ private:
 
     Camera activeCamera;
     
-    void initializeGL() override;
-    void paintGL() override;
-    void resizeGL(int w, int h) override;
-    
     void initShaders();
     void initTextures();
+    void initializeGL() override;
 
     void sortParticle();
     void updateParticles();
-    void calculateProjectionMatrix();
     void genStartPos(Particle& p);
     void genPhysicalForce(float sec, Particle& p);
-
 };
 
 #endif // PARTICLEWIDGET_H

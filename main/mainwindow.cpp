@@ -3,6 +3,7 @@
 #include "particlewidget.h"
 #include "particlesystemfeatures.h"
 #include "testwidget.h"
+#include "compositionwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,8 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QSize windowSize(600, 600);
     this->setFixedSize(windowSize);
 
-    ParticleWidget* test = new ParticleWidget(this);
+    CompositionWidget* composition = new CompositionWidget(this);
     Camera testCam(3.0f, 200.0f, 45.0f);
+    composition->setActiveCamera(testCam);
+
+    std::shared_ptr<ParticleWidget> test(new ParticleWidget(composition));
 
     EmitterShape shape;
     shape.type = CONE;
@@ -37,11 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     test->setEmitParameter(parameters);
 
     test->setEmitterPosition(QVector3D(0.0f, 0.0f, -100.0f));
-    testCam.setCameraPosition(QVector3D(0.0f, 0.0f, 5.0f));
-    test->setActiveCamera(testCam);
 
-    test->resize(windowSize);
-    test->show();
+    composition->push_back(std::dynamic_pointer_cast<Solid>(test));
+
+    composition->resize(windowSize);
+    composition->show();
     test->play();
 
     /*

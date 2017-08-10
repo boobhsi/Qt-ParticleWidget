@@ -31,7 +31,9 @@ SOURCES += \
     testwidget.cpp \
     util.cpp \
     camera.cpp \
-    editor.cpp
+    editor.cpp \
+    compositionwidget.cpp \
+    solid.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -41,7 +43,9 @@ HEADERS += \
     particlesystemfeatures.h \
     util.h \
     camera.h \
-    editor.h
+    editor.h \
+    compositionwidget.h \
+    solid.h
 
 FORMS += \
         mainwindow.ui
