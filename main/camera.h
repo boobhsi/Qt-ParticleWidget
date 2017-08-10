@@ -8,13 +8,19 @@ class Camera
 public:
     Camera() {}
     Camera(float inear, float ifar, float ifov);
-    void calculateProjectionMatrix(float aspect);
+    void calculateProjectionMatrix();
     const QVector3D& getCameraPosition() const;
     const QMatrix4x4& getProjectionMatrix() const;
     void setCameraPosition(const QVector3D& input);
+    void setCameraRotation(const QVector3D& input);
+    void rotateCamera(const QVector3D& input);
+    void translateCamera(const QVector3D& input);
+    void setAspect(float aspect);
 
 private:
     QVector3D mCameraPosition;
+    QMatrix4x4 mCameraRotation;
+    QMatrix4x4 mCameraPerspective;
     QMatrix4x4 mProjectionMatrix;
     float zNear, zFar, fov;
 

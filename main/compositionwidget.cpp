@@ -42,7 +42,7 @@ void CompositionWidget::resizeGL(int w, int h)
     // Calculate aspect ratio
     aspect = float(w) / float(h ? h : 1);
 
-    activeCamera.calculateProjectionMatrix(aspect);
+    activeCamera.setAspect(aspect);
 }
 
 void CompositionWidget::paintGL()

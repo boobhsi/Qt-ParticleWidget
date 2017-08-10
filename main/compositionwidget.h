@@ -8,11 +8,13 @@
 #include <QTimer>
 #include <memory>
 #include "solid.h"
+#include "cameradragger.h"
 
 class Solid;
 
 class CompositionWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
+    friend class CameraDragger;
 public:
     explicit CompositionWidget(QWidget* parent = Q_NULLPTR);
     ~CompositionWidget();

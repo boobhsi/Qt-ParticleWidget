@@ -2,8 +2,8 @@
 #include "ui_mainwindow.h"
 #include "particlewidget.h"
 #include "particlesystemfeatures.h"
-#include "testwidget.h"
 #include "compositionwidget.h"
+#include "cameradragger.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,7 +13,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QSize windowSize(600, 600);
     this->setFixedSize(windowSize);
 
-    CompositionWidget* composition = new CompositionWidget(this);
+    CameraDragger* ctrl = new CameraDragger(this);
+    ctrl->setFixedSize(windowSize);
+
+    CompositionWidget* composition = new CompositionWidget(ctrl);
+    composition->resize(ctrl->size());
+    ctrl->setControlled(composition);
+
     Camera testCam(3.0f, 200.0f, 45.0f);
     composition->setActiveCamera(testCam);
 
@@ -32,8 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
     parameters.startLifeTime = 5.0f;
     parameters.startSpeed = 5.0f;
     parameters.startSize = 1.0f;
-    parameters.maxParticleNum = 1000;
-    parameters.emissionRate = 170;
+    parameters.maxParticleNum = 50000;
+    parameters.emissionRate = 3000;
     parameters.texturePath = "";
 
     test->setEmitterShape(shape);
@@ -44,15 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     composition->push_back(std::dynamic_pointer_cast<Solid>(test));
 
-    composition->resize(windowSize);
-    composition->show();
     test->play();
 
-    /*
-    TestWidget* test = new TestWidget(this);
-    test->resize(windowSize);
-    test->show();
-    */
 }
 
 MainWindow::~MainWindow()

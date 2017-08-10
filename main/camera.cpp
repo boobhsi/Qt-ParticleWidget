@@ -5,24 +5,30 @@ Camera::Camera(float inear, float ifar, float ifov) : mCameraPosition(0.0, 0.0, 
     zNear = inear;
     zFar = ifar;
     fov = ifov;
+    mCameraPerspective.setToIdentity();
+    mCameraRotation.setToIdentity();
 }
 
-void Camera::calculateProjectionMatrix(float aspect) {
+void Camera::setAspect(float aspect) {
     // Reset projection
-    QMatrix4x4 projectionMatrix;
-    projectionMatrix.setToIdentity();
+    mCameraPerspective.setToIdentity();
 
     // Set perspective projection
-    projectionMatrix.perspective(fov, aspect, zNear, zFar);
-    qDebug() << projectionMatrix;
+    mCameraPerspective.perspective(fov, aspect, zNear, zFar);
 
-    //mProjectionMatrix.ortho(-10, 10, -10, 10, zNear, zFar);
+    calculateProjectionMatrix();
+}
 
-    QMatrix4x4 matrix;
-    matrix.translate(-mCameraPosition);
-    qDebug() << matrix;
+void Camera::calculateProjectionMatrix() {
 
-    mProjectionMatrix = projectionMatrix * matrix;
+    QMatrix4x4 matrixP, matrixR;
+    matrixP.translate(-mCameraPosition);
+    qDebug() << matrixP;
+
+    matrixR = mCameraRotation.transposed();
+    qDebug() << matrixR;
+
+    mProjectionMatrix = mCameraPerspective * (matrixP * matrixR);
     qDebug() << mProjectionMatrix;
 }
 
@@ -34,7 +40,29 @@ const QMatrix4x4& Camera::getProjectionMatrix() const {
     return mProjectionMatrix;
 }
 
-void Camera::setCameraPosition(const QVector3D &input) {
+void Camera::setCameraPosition(const QVector3D& input) {
     mCameraPosition = input;
+    calculateProjectionMatrix();
 }
 
+void Camera::setCameraRotation(const QVector3D& input) {
+    mCameraRotation.setToIdentity();
+    rotateCamera(input);
+    calculateProjectionMatrix();
+}
+
+void Camera::rotateCamera(const QVector3D& input) {
+    QVector3D xr(1.0f, 0.0f, 0.0f);
+    QVector3D yr(0.0f, 1.0f, 0.0f);
+    QVector3D zr(0.0f, 0.0f, 1.0f);
+    mCameraRotation.rotate(input.x(), xr);
+    mCameraRotation.rotate(input.y(), yr);
+    mCameraRotation.rotate(input.z(), zr);
+    calculateProjectionMatrix();
+}
+
+void Camera::translateCamera(const QVector3D& input) {
+    mCameraPosition += input;
+    qDebug() << mCameraPosition;
+    calculateProjectionMatrix();
+}

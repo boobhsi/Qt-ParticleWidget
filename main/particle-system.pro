@@ -28,24 +28,24 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     particlewidget.cpp \
-    testwidget.cpp \
     util.cpp \
     camera.cpp \
     editor.cpp \
     compositionwidget.cpp \
-    solid.cpp
+    solid.cpp \
+    cameradragger.cpp
 
 HEADERS += \
     mainwindow.h \
     particlewidget.h \
     particle.h \
-    testwidget.h \
     particlesystemfeatures.h \
     util.h \
     camera.h \
     editor.h \
     compositionwidget.h \
-    solid.h
+    solid.h \
+    cameradragger.h
 
 FORMS += \
         mainwindow.ui
