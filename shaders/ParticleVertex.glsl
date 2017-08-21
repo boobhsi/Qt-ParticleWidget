@@ -13,15 +13,19 @@ out vec4 particlecolor;
 //uniform vec3 CameraRight_worldspace;
 //uniform vec3 CameraUp_worldspace;
 uniform mat4 mvp; // Model-View-Projection matrix, but without the Model (the position is in BillboardPos; the orientation depends on the camera)
+uniform vec3 upAxis;
+uniform vec3 rightAxis;
 
 void main()
 {
 	float particleSize = xyzs.w; // because we encoded it this way.
 	vec3 particleCenter_wordspace = xyzs.xyz;
 	
-	vec3 vertexPosition_worldspace = 
-		particleCenter_wordspace
-                + vec3(squareVertices.x * particleSize, squareVertices.y * particleSize, 0.0f);
+        //vec3 vertexPosition_worldspace =
+        //        particleCenter_wordspace
+        //        + vec3(squareVertices.x * particleSize, squareVertices.y * particleSize, 0.0f);
+        vec3 vertexPosition_worldspace = particleCenter_wordspace +
+              ( normalize(rightAxis) * squareVertices.x + normalize(upAxis) * squareVertices.y) * particleSize;
 
 	// Output position of the vertex
         gl_Position = mvp * vec4(vertexPosition_worldspace, 1.0f);

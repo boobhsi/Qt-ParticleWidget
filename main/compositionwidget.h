@@ -22,11 +22,11 @@ public:
     void setActiveCamera(Camera& ac);
     const Camera& getActiveCamera();
 
-    void push_back(std::shared_ptr<Solid> input);
+    void push_back(Solid *input);
 
 private:
     QTimer* timer;
-    std::shared_ptr<Solid> test;
+    Solid* test;
     Camera activeCamera;
     GLuint mProjectionMatrixID;
     float aspect;

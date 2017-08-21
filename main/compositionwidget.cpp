@@ -23,7 +23,7 @@ void CompositionWidget::initializeGL()
     initializeOpenGLFunctions();;
 
     //Set composition background to black
-    glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
     // Accept fragment if it closer to the camera than the former one
     glEnable(GL_DEPTH_TEST);
@@ -59,7 +59,7 @@ const Camera& CompositionWidget::getActiveCamera()
     return activeCamera;
 }
 
-void CompositionWidget::push_back(std::shared_ptr<Solid> input)
+void CompositionWidget::push_back(Solid *input)
 {
     test = input;
 }

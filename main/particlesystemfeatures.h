@@ -4,8 +4,12 @@
 #include <QVector3D>
 #include "particle.h"
 #include "util.h"
+#include "CurveEditor/libspline/aaCurve.h"
+#include "gradientdescriber.h"
 
-enum EmitterType{CONE};
+enum EmitterType{CONE, TypeCount};
+
+const std::string EmitterTypeString[EmitterType::TypeCount] = {"Cone"};
 
 struct EmitterShape{
     EmitterType type = CONE;
@@ -16,19 +20,17 @@ struct EmitterShape{
 
 struct Physic{
     float gravityModifier = 1.0f;
-
 };
 
 struct EmitParameter{
-    //float duration;
-    //bool looping;
     float startLifeTime = 1.0f;
     float startSpeed = 1.0f;
     float startSize = 1.0f;
     unsigned maxParticleNum = 1000;
     unsigned emissionRate = 100;
     QString texturePath = "";
-    //bool colorRandomize;
+    bool colorCustom = false;
+    bool colorOverLife= false;
 };
 
 #endif // PARTICLESYSTEMFEATURES_H

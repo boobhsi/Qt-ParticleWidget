@@ -26,7 +26,7 @@ struct Particle{
 
     bool checkLife(float sec) {
         life -= sec;
-        if(life > 0.0f) {
+        if(life >= 0.0f) {
             return true;
         }
         else {

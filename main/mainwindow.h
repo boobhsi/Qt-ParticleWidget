@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QOpenGLContext>
+#include "editor.h"
+#include "particlewidget.h"
+#include "compositionwidget.h"
+#include "cameradragger.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +22,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    CameraDragger* ctrl;
+    CompositionWidget* composition;
+    Editor* comEditor;
 };
 
 #endif // MAINWINDOW_H

@@ -69,8 +69,7 @@ void CameraDragger::controllCamera()
         break;
     }
     case RIGHT:{
-        QVector3D temp(0.0f, 0.0f, -displacement.y() / 5);
-        cm->translateCamera(temp);
+        cm->forwardCamera(-displacement.y() / 5);
         break;
     }
     case MID:{

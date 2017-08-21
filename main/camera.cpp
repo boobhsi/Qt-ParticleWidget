@@ -28,7 +28,7 @@ void Camera::calculateProjectionMatrix() {
     matrixR = mCameraRotation.transposed();
     qDebug() << matrixR;
 
-    mProjectionMatrix = mCameraPerspective * (matrixP * matrixR);
+    mProjectionMatrix = mCameraPerspective * (matrixR * matrixP);
     qDebug() << mProjectionMatrix;
 }
 
@@ -38,6 +38,10 @@ const QVector3D& Camera::getCameraPosition() const {
 
 const QMatrix4x4& Camera::getProjectionMatrix() const {
     return mProjectionMatrix;
+}
+
+const QMatrix4x4& Camera::getCameraRotation() const {
+    return mCameraRotation;
 }
 
 void Camera::setCameraPosition(const QVector3D& input) {
@@ -65,4 +69,8 @@ void Camera::translateCamera(const QVector3D& input) {
     mCameraPosition += input;
     qDebug() << mCameraPosition;
     calculateProjectionMatrix();
+}
+
+void Camera::forwardCamera(const float& dis) {
+    translateCamera(dis * *(QVector3D*)(getCameraRotation().data() + 8));
 }

@@ -11,10 +11,12 @@ public:
     void calculateProjectionMatrix();
     const QVector3D& getCameraPosition() const;
     const QMatrix4x4& getProjectionMatrix() const;
+    const QMatrix4x4& getCameraRotation() const;
     void setCameraPosition(const QVector3D& input);
     void setCameraRotation(const QVector3D& input);
     void rotateCamera(const QVector3D& input);
     void translateCamera(const QVector3D& input);
+    void forwardCamera(const float& dis);
     void setAspect(float aspect);
 
 private:

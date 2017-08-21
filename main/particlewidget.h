@@ -12,30 +12,43 @@
 #include "util.h"
 #include "camera.h"
 #include "solid.h"
+#include "CurveEditor/libspline/aaCurve.h"
+#include "editor.h"
 
 class ParticleWidget : public Solid, protected QOpenGLExtraFunctions
 {
 public:
-    explicit ParticleWidget(CompositionWidget* parent);
+    explicit ParticleWidget(CompositionWidget* cParent);
     ~ParticleWidget();
 
     void setEmitterPosition(QVector3D input);
-    void setEmitterShape(EmitterShape& shape);
-    void setEnviromentPhysic(Physic& enviroment);
-    void setEmitParameter(EmitParameter& parameter);
+    void setEmitterShape(const EmitterShape& shape);
+    void setEnviromentPhysic(const Physic& enviroment);
+    void setEmitParameter(const EmitParameter& parameter);
+    void setGradient(const GradientDescriber& gradient);
+    void setColor(const QColor& color);
 
-    void play();
-    void stop();
-    bool isPlaying();
+    const EmitterShape& getShape();
+    const EmitParameter& getParameter();
+    const Physic& getPhysic();
 
+    aaAaa::aaSpline* getSizeSpline();
+
+    void play() override;
+    void stop() override;
+    void reset(bool replay) override;
+    bool isPlaying() override;
     void render() override;
 
 private:
+    typedef std::vector<std::pair<double, double>> ValueList;
+
     Particle* mParticleContainer;
     GLfloat* mParticlePosSizeData;
-    GLubyte* mParticleColorData;
+    GLfloat* mParticleColorData;
 
-    QOpenGLTexture *mTexture;
+    QImage* mTextureImage;
+    QImage* mTextureLImage;
 
     const GLfloat mParticleVertexData[12] = {
             -0.5f, -0.5f, 0.0f,
@@ -46,14 +59,19 @@ private:
 
     static const QVector3D Gravity;
 
+    GLuint mTextureID;
+    GLuint mTextureLID;
+
     GLuint mVertexArrayID;
     GLuint mParticleVertexBuffer;
     GLuint mParticlePosSizeBuffer;
     GLuint mParticleColorBuffer;
 
     GLuint mProjectionMatrixID;
-    GLuint mTextureID;
-    
+    GLuint mTextureUniformID;
+    GLuint mUpAxisID;
+    GLuint mRightAxisID;
+
     QOpenGLShaderProgram mProgram;
     
     QVector3D mEmitterPosition;
@@ -63,21 +81,31 @@ private:
     EmitterShape mShape;
     EmitParameter mParameter;
     Physic mParticlePhysic;
+    aaAaa::aaSpline mSizeSpline;
+    GradientDescriber mGradient;
+    QColor mColor;
+    ValueList mSizeCurve;
 
     unsigned mCurrentParticleNum;
     bool mIsPlaying;
+    bool mNeedEmit;
     QString mTexturePath;
 
     Camera activeCamera;
     
+    void initializeGL() override;
+
     void initShaders();
     void initTextures();
-    void initializeGL() override;
+    void initGLBuffer();
+    void preset();
 
     void sortParticle();
     void updateParticles();
     void genStartPos(Particle& p);
     void genPhysicalForce(float sec, Particle& p);
+    void changeColorOverTime(Particle& p);
+    void reGenerateSizeCurve();
 };
 
 #endif // PARTICLEWIDGET_H

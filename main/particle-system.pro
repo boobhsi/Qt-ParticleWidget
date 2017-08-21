@@ -7,6 +7,8 @@
 QT       += core gui
 QT       += opengl
 
+LIBS += -lglut -lGLU
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = particle-system
@@ -30,10 +32,18 @@ SOURCES += \
     particlewidget.cpp \
     util.cpp \
     camera.cpp \
-    editor.cpp \
     compositionwidget.cpp \
     solid.cpp \
-    cameradragger.cpp
+    cameradragger.cpp \
+    CurveEditor/curveeditor/GlobalData.cpp \
+    CurveEditor/curveeditor/graphiceditor.cpp \
+    CurveEditor/curveeditor/SplineDisplayerWidget.cpp \
+    CurveEditor/libspline/aaCurve.cpp \
+    CurveEditor/libspline/spline.cpp \
+    editor.cpp \
+    turbulence.cpp \
+    colorwidget.cpp \
+    gradientdescriber.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -42,16 +52,24 @@ HEADERS += \
     particlesystemfeatures.h \
     util.h \
     camera.h \
-    editor.h \
     compositionwidget.h \
     solid.h \
-    cameradragger.h
+    cameradragger.h \
+    CurveEditor/curveeditor/GlobalData.h \
+    CurveEditor/curveeditor/graphiceditor.h \
+    CurveEditor/curveeditor/SplineDisplayerWidget.h \
+    CurveEditor/libspline/aaCurve.h \
+    CurveEditor/libspline/spline.h \
+    editor.h \
+    turbulence.h \
+    colorwidget.h \
+    gradientdescriber.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    CurveEditor/curveeditor/graphiceditor.ui \
+    editor.ui
 
 DISTFILES += \
     ../shaders/ParticleFragment.glsl \
-    ../shaders/ParticleVertex.glsl \
-    ../shaders/TestFragment.glsl \
-    ../shaders/TestVertex.glsl
+    ../shaders/ParticleVertex.glsl
