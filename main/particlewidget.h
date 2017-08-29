@@ -27,10 +27,12 @@ public:
     void setEmitParameter(const EmitParameter& parameter);
     void setGradient(const GradientDescriber& gradient);
     void setColor(const QColor& color);
+    void setBlurRadius(double radius);
 
     const EmitterShape& getShape();
     const EmitParameter& getParameter();
     const Physic& getPhysic();
+    float getBlurRadius();
 
     aaAaa::aaSpline* getSizeSpline();
 
@@ -57,22 +59,39 @@ private:
             0.5f, 0.5f, 0.0f
     };
 
+    const GLfloat mQuadVertexData[18] = {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+    };
+
     static const QVector3D Gravity;
 
     GLuint mTextureID;
     GLuint mTextureLID;
+    GLuint mRenderTextureID;
 
     GLuint mVertexArrayID;
     GLuint mParticleVertexBuffer;
     GLuint mParticlePosSizeBuffer;
     GLuint mParticleColorBuffer;
 
+    GLuint mQuadVertexBuffer;
+
+    GLuint mFrameBufferID;
+    
     GLuint mProjectionMatrixID;
     GLuint mTextureUniformID;
     GLuint mUpAxisID;
     GLuint mRightAxisID;
+    GLuint mRenderTextureUniformID;
+    GLuint mBlurRadiusUniformID;
 
     QOpenGLShaderProgram mProgram;
+    QOpenGLShaderProgram mQuadProgram;
     
     QVector3D mEmitterPosition;
     
@@ -89,6 +108,7 @@ private:
     unsigned mCurrentParticleNum;
     bool mIsPlaying;
     bool mNeedEmit;
+    float mBlurRadius;
     QString mTexturePath;
 
     Camera activeCamera;
@@ -98,7 +118,10 @@ private:
     void initShaders();
     void initTextures();
     void initGLBuffer();
-    void preset();
+    void initRenderBuffer();
+    void resetGL();
+    void resetParameters();
+    void presetGL();
 
     void sortParticle();
     void updateParticles();
@@ -106,6 +129,9 @@ private:
     void genPhysicalForce(float sec, Particle& p);
     void changeColorOverTime(Particle& p);
     void reGenerateSizeCurve();
+    
+    void renderToFBO();
+    void renderToScreen();
 };
 
 #endif // PARTICLEWIDGET_H

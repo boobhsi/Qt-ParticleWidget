@@ -45,7 +45,7 @@ QVector3D genRandomDir3D(unsigned int angle) {
                 cos(theta),
                 sin(theta) * sin(phi)
                 );
-    return temp;
+    return temp * log(cos(theta) + 1);
 }
 
 void RGBtoLuv(const QImage& from, QImage& to) {

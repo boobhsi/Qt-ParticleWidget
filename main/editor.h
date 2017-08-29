@@ -33,6 +33,7 @@ private slots:
     void onColorChange(void);
     void drawPalettePanel(int);
     void brushPaletteLabel(int);
+    void onBlurChange(double);
 
 private:
     Ui::Editor *ui;

@@ -67,6 +67,8 @@ void Editor::initUI() {
     ui->size->setRange(0.1f, 100.0f);
 
     ui->gravity->setRange(-100.0f, 100.0f);
+
+    ui->blurRadius->setRange(0.0, 10.0);
 }
 
 void Editor::drawPalettePanel(int checked) {
@@ -117,6 +119,8 @@ void Editor::connectChangeSignals() {
     connect(ui->graType, SIGNAL(currentIndexChanged(int)), this, SLOT(onParametersChange()));
 
     connect(ui->head, SIGNAL(colorChange()), this, SLOT(onColorChange()));
+
+    connect(ui->blurRadius, SIGNAL(valueChanged(double)), this, SLOT(onBlurChange(double)));
 }
 
 void Editor::setUItoInitControll() {
@@ -135,6 +139,8 @@ void Editor::setUItoInitControll() {
 
     const Physic& phy = nowControll->getPhysic();
     ui->gravity->setValue(phy.gravityModifier);
+
+    ui->blurRadius->setValue(nowControll->getBlurRadius());
 }
 
 void Editor::onEmitterShapeChange() {
@@ -168,4 +174,8 @@ void Editor::onEnvironmentChange() {
 
 void Editor::onColorChange() {
     nowControll->setColor(ui->head->getColor());
+}
+
+void Editor::onBlurChange(double a) {
+    nowControll->setBlurRadius(a);
 }

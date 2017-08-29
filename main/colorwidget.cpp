@@ -3,7 +3,7 @@
 
 ColorWidget::ColorWidget(QWidget *parent) : QFrame(parent), mCurrent(Qt::white, Qt::red, Qt::blue)
 {
-    QImage scbg("../zz.jpeg");
+    QImage scbg("../res/transparent.jpeg");
     scbg = scbg.scaledToHeight(this->size().height());
     mBrusher = new QBrush(scbg);
     mPalette = new QPalette(this->palette());

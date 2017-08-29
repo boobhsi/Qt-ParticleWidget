@@ -72,4 +72,6 @@ FORMS += \
 
 DISTFILES += \
     ../shaders/ParticleFragment.glsl \
-    ../shaders/ParticleVertex.glsl
+    ../shaders/ParticleVertex.glsl \
+    ../shaders/quadFrag.glsl \
+    ../shaders/quadVertex.glsl

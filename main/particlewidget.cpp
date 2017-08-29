@@ -1,5 +1,6 @@
 #include "particlewidget.h"
 #include <QRgb>
+#include <cassert>
 
 #define OPENGLFUNC cParent->context()->extraFunctions()
 
@@ -16,6 +17,10 @@ ParticleWidget::ParticleWidget(CompositionWidget *parent) :
     mIsPlaying = false;
     mNeedEmit = false;
     mCurrentParticleNum = 0;
+
+    mBlurRadius = 0.0f;
+
+    resetParameters();
 }
 
 ParticleWidget::~ParticleWidget()
@@ -29,6 +34,8 @@ ParticleWidget::~ParticleWidget()
 
 void ParticleWidget::initializeGL()
 {
+    glReady = true;
+    
     qDebug() << "Initialize shaders";
     initShaders();
     qDebug() << "Initialize texture";
@@ -38,9 +45,11 @@ void ParticleWidget::initializeGL()
     mUpAxisID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "upAxis");
     mRightAxisID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "rightAxis");
 
-    glReady = true;
+    mRenderTextureUniformID = OPENGLFUNC->glGetUniformLocation(mQuadProgram.programId(), "renderTexture");
+    mBlurRadiusUniformID = OPENGLFUNC->glGetUniformLocation(mQuadProgram.programId(), "blurStep");
 
-    preset();
+    resetParameters();
+    presetGL();
 }
 
 void ParticleWidget::initGLBuffer()
@@ -61,10 +70,35 @@ void ParticleWidget::initGLBuffer()
     OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, mParameter.maxParticleNum * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 }
 
+void ParticleWidget::initRenderBuffer() {
+    OPENGLFUNC->glGenTextures(1, &mRenderTextureID);
+    OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mRenderTextureID);
+    OPENGLFUNC->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->cParent->width(), this->cParent->height(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    OPENGLFUNC->glGenFramebuffers(1, &mFrameBufferID);
+    OPENGLFUNC->glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID);
+
+    OPENGLFUNC->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mRenderTextureID, 0);
+
+    GLenum temp = GL_COLOR_ATTACHMENT0;
+    OPENGLFUNC->glDrawBuffers(1, &temp);
+
+    assert(OPENGLFUNC->glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+    OPENGLFUNC->glGenBuffers(1, &mQuadVertexBuffer);
+    OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
+    OPENGLFUNC->glBufferData(GL_ARRAY_BUFFER, sizeof(mQuadVertexData), mQuadVertexData, GL_STATIC_DRAW);
+}
+
 
 void ParticleWidget::play()
 {
     mIsPlaying = true;
+    mFromStartTime.start();
 }
 
 void ParticleWidget::stop() {
@@ -72,18 +106,29 @@ void ParticleWidget::stop() {
 }
 
 void ParticleWidget::reset(bool replay) {
-    OPENGLFUNC->glDeleteBuffers(1, &mParticleVertexBuffer);
-    OPENGLFUNC->glDeleteBuffers(1, &mParticlePosSizeBuffer);
-    OPENGLFUNC->glDeleteBuffers(1, &mParticleColorBuffer);
-    OPENGLFUNC->glDeleteVertexArrays(1, &mVertexArrayID);
-
-    preset();
-    mFromStartTime.start();
+    if(replay) stop();
+    resetGL();
+    resetParameters();
     if(replay) play();
 }
 
-void ParticleWidget::preset() {
-    if(glReady) initGLBuffer();
+void ParticleWidget::resetGL() {
+    if(glReady) {
+        OPENGLFUNC->glDeleteBuffers(1, &mParticleVertexBuffer);
+        OPENGLFUNC->glDeleteBuffers(1, &mParticlePosSizeBuffer);
+        OPENGLFUNC->glDeleteBuffers(1, &mParticleColorBuffer);
+        OPENGLFUNC->glDeleteVertexArrays(1, &mVertexArrayID);
+
+        initGLBuffer();
+    }
+}
+
+void ParticleWidget::presetGL() {
+    initGLBuffer();
+    initRenderBuffer();
+}
+
+void ParticleWidget::resetParameters() {
     reGenerateSizeCurve();
 }
 
@@ -91,22 +136,33 @@ bool ParticleWidget::isPlaying() {
     return mIsPlaying;
 }
 
-void ParticleWidget::render()
-{
+void ParticleWidget::render() {
     if(mIsPlaying) {
+        OPENGLFUNC->glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID);
+        OPENGLFUNC->glViewport(0, 0, cParent->width(), cParent->height());
+        OPENGLFUNC->glClear(GL_COLOR_BUFFER_BIT);
+        renderToFBO();
+
+        OPENGLFUNC->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //OPENGLFUNC->glViewport(0, 0, cParent->width(), cParent->height());
+        renderToScreen();
+    }
+}
+
+void ParticleWidget::renderToFBO()
+{
+
         updateParticles();
 
         OPENGLFUNC->glUseProgram(mProgram.programId());
+        OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
+        OPENGLFUNC->glUniform1i(mTextureUniformID, 0);
 
         if(mParameter.colorCustom) {
-            OPENGLFUNC->glActiveTexture(GL_TEXTURE1);
             OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mTextureLID);
-            OPENGLFUNC->glUniform1i(mTextureUniformID, 1);
         }
         else {
-            OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
             OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mTextureID);
-            OPENGLFUNC->glUniform1i(mTextureUniformID, 0);
         }
 
         OPENGLFUNC->glUniformMatrix4fv(mProjectionMatrixID, 1, GL_FALSE, (GLfloat*)cParent->getActiveCamera().getProjectionMatrix().data());
@@ -139,8 +195,32 @@ void ParticleWidget::render()
         OPENGLFUNC->glDisableVertexAttribArray(0);
         OPENGLFUNC->glDisableVertexAttribArray(1);
         OPENGLFUNC->glDisableVertexAttribArray(2);
-    }
-    return;
+}
+
+void ParticleWidget::renderToScreen() {
+    OPENGLFUNC->glUseProgram(mQuadProgram.programId());
+
+    OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
+    OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mRenderTextureID);
+    OPENGLFUNC->glUniform1i(mRenderTextureUniformID ,0);
+
+    float tempRadius = mBlurRadius / cParent->height();
+    OPENGLFUNC->glUniform1f(mBlurRadiusUniformID, tempRadius);
+
+    OPENGLFUNC->glEnableVertexAttribArray(0);
+    OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
+    OPENGLFUNC->glVertexAttribPointer(
+                0,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                0,
+                (void*)0
+                );
+
+    OPENGLFUNC->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    OPENGLFUNC->glDisableVertexAttribArray(0);
 }
 
 void ParticleWidget::initShaders()
@@ -160,6 +240,18 @@ void ParticleWidget::initShaders()
 
     // Bind shader pipeline for use
     if (!mProgram.bind())
+        cParent->close();
+    
+    if(!mQuadProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/quadVertex.glsl"))
+        cParent->close();
+    
+    if(!mQuadProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/quadFrag.glsl"))
+        cParent->close();
+    
+    if(!mQuadProgram.link())
+        cParent->close();
+    
+    if(!mQuadProgram.bind())
         cParent->close();
 
     qDebug() << "Shaders initialized!";
@@ -189,23 +281,6 @@ void ParticleWidget::initTextures()
     qDebug() << mTextureImage->pixelColor(99, 99);
     qDebug() << mTextureLImage->pixelColor(99, 99);
 
-
-    /*
-    mTexture = new QOpenGLTexture(textureImage.mirrored());
-    mTextureL = new QOpenGLTexture(textureImage.mirrored());
-
-    // Set nearest filtering mode for texture minification
-    mTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-
-    // Set bilinear filtering mode for texture magnification
-    mTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    mTexture->setWrapMode(QOpenGLTexture::Repeat);
-    */
-
-    OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
     OPENGLFUNC->glGenTextures(1, &mTextureID);
     OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mTextureID);
     OPENGLFUNC->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mTextureImage->width(), mTextureImage->height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)mTextureImage->bits());
@@ -215,7 +290,6 @@ void ParticleWidget::initTextures()
     OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     OPENGLFUNC->glGenerateMipmap(GL_TEXTURE_2D);
 
-    OPENGLFUNC->glActiveTexture(GL_TEXTURE1);
     OPENGLFUNC->glGenTextures(1, &mTextureLID);
     OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mTextureLID);
     OPENGLFUNC->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mTextureLImage->width(), mTextureLImage->height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)mTextureLImage->bits());
@@ -360,8 +434,7 @@ void ParticleWidget::setEmitParameter(const EmitParameter& parameter) {
 
     mParameter = parameter;
 
-    if(isPlaying()) reset(true);
-    else preset();
+    reset(isPlaying());
 }
 
 void ParticleWidget::genStartPos(Particle& p) {
@@ -420,12 +493,20 @@ const Physic& ParticleWidget::getPhysic() {
     return mParticlePhysic;
 }
 
+float ParticleWidget::getBlurRadius() {
+    return mBlurRadius;
+}
+
 void ParticleWidget::setGradient(const GradientDescriber& gradient) {
     mGradient = gradient;
 }
 
 void ParticleWidget::setColor(const QColor& color) {
     mColor = color;
+}
+
+void ParticleWidget::setBlurRadius(double radius) {
+    mBlurRadius = radius;
 }
 
 const QVector3D ParticleWidget::Gravity = QVector3D(0.0f, -9.8f, 0.0f);
