@@ -90,6 +90,22 @@
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
+   <widget class="GradientWidget" name="tail">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBox" name="parameterBox">
    <property name="geometry">
@@ -101,7 +117,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="shape">
     <property name="geometry">
@@ -474,6 +490,12 @@
  <customwidgets>
   <customwidget>
    <class>ColorWidget</class>
+   <extends>QFrame</extends>
+   <header>colorwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GradientWidget</class>
    <extends>QFrame</extends>
    <header>colorwidget.h</header>
    <container>1</container>

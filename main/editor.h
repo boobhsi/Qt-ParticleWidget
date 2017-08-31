@@ -5,6 +5,7 @@
 #include "particlewidget.h"
 #include "CurveEditor/curveeditor/graphiceditor.h"
 #include "colorwidget.h"
+#include "colorlabel.h"
 
 class ParticleWidget;
 
@@ -31,6 +32,7 @@ private slots:
     void onParametersChange(void);
     void onEnvironmentChange(void);
     void onColorChange(void);
+    void onGradientChange(void);
     void drawPalettePanel(int);
     void brushPaletteLabel(int);
     void onBlurChange(double);

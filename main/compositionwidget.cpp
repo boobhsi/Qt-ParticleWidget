@@ -9,6 +9,7 @@ CompositionWidget::CompositionWidget(QWidget* parent) :
     timer->start((int)(1000/60)); //60fps
 }
 
+
 CompositionWidget::~CompositionWidget()
 {
     //delete test;
@@ -66,5 +67,9 @@ void CompositionWidget::push_back(Solid *input)
 
 void CompositionWidget::setActiveCamera(Camera &ac) {
     activeCamera = ac;
+}
+
+void CompositionWidget::paintEvent() {
+
 }
 

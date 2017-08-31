@@ -41,6 +41,30 @@ void GradientDescriber::insertColor(const QColor& iColor, float t) {
             mNodeList.insert(it, temp);
             return;
         }
-        mNodeList.push_back(temp);
     }
+    mNodeList.push_back(temp);
+}
+
+bool GradientDescriber::deleteColor(float t) {
+    if(mNodeList.size() == 1) return false;
+    for(std::vector<ColorNode>::iterator i = mNodeList.begin(); i != mNodeList.end(); i++) {
+        if(t == (*i).first) {
+            mNodeList.erase(i);
+            return true;
+        }
+    }
+    return false;
+}
+
+void GradientDescriber::changeColor(const QColor& iColor, float t) {
+    for(std::vector<ColorNode>::iterator i = mNodeList.begin(); i != mNodeList.end(); i++) {
+        if(t == (*i).first) {
+            (*i).second = iColor;
+            break;
+        }
+    }
+}
+
+const std::vector<GradientDescriber::ColorNode>& GradientDescriber::getList() {
+    return mNodeList;
 }

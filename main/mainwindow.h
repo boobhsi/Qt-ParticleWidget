@@ -26,6 +26,8 @@ private:
     CameraDragger* ctrl;
     CompositionWidget* composition;
     Editor* comEditor;
+
+    QLabel* testBackground;
 };
 
 #endif // MAINWINDOW_H

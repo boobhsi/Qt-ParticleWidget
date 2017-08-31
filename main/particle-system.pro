@@ -7,7 +7,7 @@
 QT       += core gui
 QT       += opengl
 
-LIBS += -lglut -lGLU
+LIBS += -lGLU
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -43,7 +43,8 @@ SOURCES += \
     editor.cpp \
     turbulence.cpp \
     colorwidget.cpp \
-    gradientdescriber.cpp
+    gradientdescriber.cpp \
+    colorlabel.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     editor.h \
     turbulence.h \
     colorwidget.h \
-    gradientdescriber.h
+    gradientdescriber.h \
+    colorlabel.h
 
 FORMS += \
         mainwindow.ui \

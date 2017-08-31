@@ -1,7 +1,7 @@
 #include "colorwidget.h"
-#include <QDebug>
+#include <QLayout>
 
-ColorWidget::ColorWidget(QWidget *parent) : QFrame(parent), mCurrent(Qt::white, Qt::red, Qt::blue)
+ColorWidget::ColorWidget(QWidget *parent) : QFrame(parent), mCurrent(Qt::red)
 {
     QImage scbg("../res/transparent.jpeg");
     scbg = scbg.scaledToHeight(this->size().height());
@@ -36,9 +36,15 @@ void ColorWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 const QColor &ColorWidget::getColor() {
-    
     return mCurrent;
 }
+
+void ColorWidget::setColor(const QColor &iColor) {
+    mCurrent = iColor;
+    drawPalette();
+}
+
+
 
 GradientWidget::GradientWidget(QWidget *parent) : ColorWidget(parent)
 {
@@ -59,11 +65,85 @@ const QColor& GradientWidget::getColor() {
 }
 
 void GradientWidget::mousePressEvent(QMouseEvent* event) {
+    float t = (float)event->pos().x() / (float)width();
+    QColor c = QColorDialog::getColor(mCurrent->getColor(t), this, "Select Color", QColorDialog::ShowAlphaChannel);
+    addGradientLabel(t, c);
+    mCurrent->insertColor(c, t);
 
+    drawPalette();
 
     emit gradientChange();
 }
 
 void GradientWidget::drawPalette() {
+    QLinearGradient gradient(0, 0, this->width(), 0);
 
+    const std::vector<GradientDescriber::ColorNode>& temp = mCurrent->getList();
+
+    for(int i=0;i<temp.size();i++) {
+        gradient.setColorAt(temp[i].first, temp[i].second);
+    }
+
+    QBrush brush(gradient);
+    QPalette tempPalette(this->palette());
+    tempPalette.setBrush(QPalette::Window, brush);
+    mUpper->setFixedSize(this->size());
+    mUpper->setAutoFillBackground(true);
+    mUpper->setPalette(tempPalette);
+}
+
+void GradientWidget::setGradient(const GradientDescriber ig) {
+    *mCurrent = ig;
+    for(std::map<float, ColorLabel*>::iterator i = mColorInterfaces.begin(); i != mColorInterfaces.end(); i++) {
+        (*i).second->hide();
+
+        disconnect((*i).second, SIGNAL(colorElementChange(QColor,float)), this, SIGNAL(onColorChange(QColor,float)));
+        disconnect((*i).second, SIGNAL(colorElementDelete(float)), this, SIGNAL(onColorDelete(float)));
+
+        delete (*i).second;
+    }
+    mColorInterfaces.clear();
+    initGradientPalette();
+
+    drawPalette();
+}
+
+
+void GradientWidget::initGradientPalette() {
+    const std::vector<GradientDescriber::ColorNode>& temp = mCurrent->getList();
+    for(std::vector<GradientDescriber::ColorNode>::const_iterator i = temp.begin(); i != temp.end(); i++) {
+        addGradientLabel((*i).first, (*i).second);
+    }
+}
+
+void GradientWidget::addGradientLabel(float t, const QColor &color) {
+    ColorLabel* newLabel = new ColorLabel(color, t, this);
+    mColorInterfaces.insert(Cl(t, newLabel));
+    newLabel->move((int)(width() * t) - newLabel->width() / 2, height() / 2 - newLabel->height() / 2);
+    newLabel->show();
+
+    connect(newLabel, SIGNAL(colorElementChange(QColor,float)), this, SLOT(onColorChange(QColor,float)));
+    connect(newLabel, SIGNAL(colorElementDelete(float)), this, SLOT(onColorDelete(float)));
+}
+
+void GradientWidget::onColorChange(const QColor& c, float t) {
+    mCurrent->changeColor(c, t);
+
+    drawPalette();
+
+    emit gradientChange();
+}
+
+void GradientWidget::onColorDelete(float t) {
+    if(!mCurrent->deleteColor(t)) return;
+    mColorInterfaces[t]->hide();
+
+    disconnect(mColorInterfaces[t], SIGNAL(colorElementChange(QColor,float)), this, SLOT(onColorChange(QColor,float)));
+    disconnect(mColorInterfaces[t], SIGNAL(colorElementDelete(float)), this, SLOT(onColorDelete(float)));
+
+    mColorInterfaces.erase(t);
+
+    drawPalette();
+
+    emit gradientChange();
 }

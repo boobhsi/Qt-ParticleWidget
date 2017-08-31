@@ -33,6 +33,8 @@ public:
     const EmitParameter& getParameter();
     const Physic& getPhysic();
     float getBlurRadius();
+    const QColor& getColor();
+    const GradientDescriber& getGradient();
 
     aaAaa::aaSpline* getSizeSpline();
 

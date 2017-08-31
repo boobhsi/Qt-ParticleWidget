@@ -24,6 +24,9 @@ public:
 
     void push_back(Solid *input);
 
+protected:
+    virtual void paintEvent();
+
 private:
     QTimer* timer;
     Solid* test;
