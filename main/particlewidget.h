@@ -27,12 +27,12 @@ public:
     void setEmitParameter(const EmitParameter& parameter);
     void setGradient(const GradientDescriber& gradient);
     void setColor(const QColor& color);
-    void setBlurRadius(double radius);
+    void setBlurTimes(int time);
 
     const EmitterShape& getShape();
     const EmitParameter& getParameter();
     const Physic& getPhysic();
-    float getBlurRadius();
+    int getBlurTimes();
 
     aaAaa::aaSpline* getSizeSpline();
 
@@ -53,45 +53,30 @@ private:
     QImage* mTextureLImage;
 
     const GLfloat mParticleVertexData[12] = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            -0.5f, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f
-    };
-
-    const GLfloat mQuadVertexData[18] = {
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-    };
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                -0.5f, 0.5f, 0.0f,
+                0.5f, 0.5f, 0.0f
+        };
 
     static const QVector3D Gravity;
 
     GLuint mTextureID;
     GLuint mTextureLID;
-    GLuint mRenderTextureID;
 
     GLuint mVertexArrayID;
     GLuint mParticleVertexBuffer;
     GLuint mParticlePosSizeBuffer;
     GLuint mParticleColorBuffer;
-
-    GLuint mQuadVertexBuffer;
-
-    GLuint mFrameBufferID;
     
     GLuint mProjectionMatrixID;
     GLuint mTextureUniformID;
     GLuint mUpAxisID;
     GLuint mRightAxisID;
-    GLuint mRenderTextureUniformID;
-    GLuint mBlurRadiusUniformID;
+    GLuint mBlurTimesUniformID;
+    GLuint mResolutionUniformID;
 
     QOpenGLShaderProgram mProgram;
-    QOpenGLShaderProgram mQuadProgram;
     
     QVector3D mEmitterPosition;
     
@@ -108,10 +93,8 @@ private:
     unsigned mCurrentParticleNum;
     bool mIsPlaying;
     bool mNeedEmit;
-    float mBlurRadius;
+    int mBlurTimes;
     QString mTexturePath;
-
-    Camera activeCamera;
     
     void initializeGL() override;
 
@@ -121,7 +104,6 @@ private:
     void initRenderBuffer();
     void resetGL();
     void resetParameters();
-    void presetGL();
 
     void sortParticle();
     void updateParticles();
@@ -129,9 +111,6 @@ private:
     void genPhysicalForce(float sec, Particle& p);
     void changeColorOverTime(Particle& p);
     void reGenerateSizeCurve();
-    
-    void renderToFBO();
-    void renderToScreen();
 };
 
 #endif // PARTICLEWIDGET_H

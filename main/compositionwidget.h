@@ -4,6 +4,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLShaderProgram>
 #include "camera.h"
 #include <QTimer>
 #include <memory>
@@ -31,9 +32,32 @@ private:
     GLuint mProjectionMatrixID;
     float aspect;
 
+    QOpenGLShaderProgram mQuadProgram;
+
+    GLuint mQuadVertexBuffer;
+
+    const GLfloat mQuadVertexData[18] = {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+    };
+
+    GLuint mRenderTextureID;
+    GLuint mFrameBufferID;
+
+    GLuint mRenderTextureUniformID;
+
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int w, int h) override;
+
+    void initRenderBuffer();
+    void initShader();
+
+    void renderToScreen();
 
 };
 
