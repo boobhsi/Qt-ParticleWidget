@@ -25,12 +25,16 @@ public:
 
     void push_back(Solid *input);
 
+    bool isGLReady();
+
 private:
     QTimer* timer;
     Solid* test;
     Camera activeCamera;
     GLuint mProjectionMatrixID;
     float aspect;
+
+    bool glReady;
 
     QOpenGLShaderProgram mQuadProgram;
 
@@ -55,7 +59,9 @@ private:
     void resizeGL(int w, int h) override;
 
     void initRenderBuffer();
-    void initShader();
+    void initQuadShader();
+    void initQuadTexture();
+    void initQuadGLBuffer();
 
     void renderToScreen();
 

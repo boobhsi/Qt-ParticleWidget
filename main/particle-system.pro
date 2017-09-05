@@ -41,9 +41,10 @@ SOURCES += \
     CurveEditor/libspline/aaCurve.cpp \
     CurveEditor/libspline/spline.cpp \
     editor.cpp \
-    turbulence.cpp \
     colorwidget.cpp \
-    gradientdescriber.cpp
+    gradientdescriber.cpp \
+    gaussianblur.cpp
+#    vectorblur.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -61,9 +62,10 @@ HEADERS += \
     CurveEditor/libspline/aaCurve.h \
     CurveEditor/libspline/spline.h \
     editor.h \
-    turbulence.h \
     colorwidget.h \
-    gradientdescriber.h
+    gradientdescriber.h \
+    gaussianblur.h
+#    vectorblur.h
 
 FORMS += \
         mainwindow.ui \
@@ -73,5 +75,7 @@ FORMS += \
 DISTFILES += \
     ../shaders/ParticleFragment.glsl \
     ../shaders/ParticleVertex.glsl \
-    ../shaders/quadFrag.glsl \
-    ../shaders/quadVertex.glsl
+    ../shaders/QuadFragment.glsl \
+    ../shaders/QuadVertex.glsl \
+    ../shaders/GaussianFragment.glsl
+

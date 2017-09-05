@@ -27,12 +27,10 @@ public:
     void setEmitParameter(const EmitParameter& parameter);
     void setGradient(const GradientDescriber& gradient);
     void setColor(const QColor& color);
-    void setBlurTimes(int time);
 
     const EmitterShape& getShape();
     const EmitParameter& getParameter();
     const Physic& getPhysic();
-    int getBlurTimes();
 
     aaAaa::aaSpline* getSizeSpline();
 
@@ -93,15 +91,13 @@ private:
     unsigned mCurrentParticleNum;
     bool mIsPlaying;
     bool mNeedEmit;
-    int mBlurTimes;
     QString mTexturePath;
     
-    void initializeGL() override;
+    void initializeGLContent() override;
+    void initShader() override;
+    void initTexture() override;
+    void initGLBuffer() override;
 
-    void initShaders();
-    void initTextures();
-    void initGLBuffer();
-    void initRenderBuffer();
     void resetGL();
     void resetParameters();
 

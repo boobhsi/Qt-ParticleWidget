@@ -120,7 +120,7 @@ void Editor::connectChangeSignals() {
 
     connect(ui->head, SIGNAL(colorChange()), this, SLOT(onColorChange()));
 
-    connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
+//    connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
 }
 
 void Editor::setUItoInitControll() {
@@ -140,7 +140,7 @@ void Editor::setUItoInitControll() {
     const Physic& phy = nowControll->getPhysic();
     ui->gravity->setValue(phy.gravityModifier);
 
-    ui->blurTimes->setValue(nowControll->getBlurTimes());
+//    ui->blurTimes->setValue(nowControll->getBlurTimes());
 }
 
 void Editor::onEmitterShapeChange() {
@@ -177,5 +177,5 @@ void Editor::onColorChange() {
 }
 
 void Editor::onBlurChange(int a) {
-    nowControll->setBlurTimes(a);
+//    nowControll->setBlurTimes(a);
 }

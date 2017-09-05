@@ -2,8 +2,6 @@
 #include <QRgb>
 #include <cassert>
 
-#define OPENGLFUNC cParent->context()->extraFunctions()
-
 ParticleWidget::ParticleWidget(CompositionWidget *parent) :
     Solid(parent),
     mSizeSpline("Size"),
@@ -18,8 +16,6 @@ ParticleWidget::ParticleWidget(CompositionWidget *parent) :
     mNeedEmit = false;
     mCurrentParticleNum = 0;
 
-    mBlurTimes = 0;
-
     resetParameters();
 }
 
@@ -32,26 +28,13 @@ ParticleWidget::~ParticleWidget()
     delete [] mParticleColorData;
 }
 
-void ParticleWidget::initializeGL()
+void ParticleWidget::initializeGLContent()
 {
-    glReady = true;
-    
-    qDebug() << "Initialize shaders";
-    initShaders();
-    qDebug() << "Initialize texture";
-    initTextures();
-
     mProjectionMatrixID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "mvp");
     mUpAxisID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "upAxis");
     mRightAxisID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "rightAxis");
 
-    /*
-    mBlurTimesUniformID = OPENGLFUNC->glGetUniformLocation(mQuadProgram.programId(), "blurTimes");
-    mResolutionUniformID = OPENGLFUNC->glGetUniformLocation(mQuadProgram.programId(), "resolution");
-*/
-
     resetParameters();
-    initGLBuffer();
 }
 
 void ParticleWidget::initGLBuffer()
@@ -90,7 +73,7 @@ void ParticleWidget::reset(bool replay) {
 }
 
 void ParticleWidget::resetGL() {
-    if(glReady) {
+    if(cParent->isGLReady()) {
         OPENGLFUNC->glDeleteBuffers(1, &mParticleVertexBuffer);
         OPENGLFUNC->glDeleteBuffers(1, &mParticlePosSizeBuffer);
         OPENGLFUNC->glDeleteBuffers(1, &mParticleColorBuffer);
@@ -156,7 +139,7 @@ void ParticleWidget::render() {
     }
 }
 
-void ParticleWidget::initShaders()
+void ParticleWidget::initShader()
 {
 
     // Compile vertex shader
@@ -176,7 +159,7 @@ void ParticleWidget::initShaders()
         cParent->close();
 }
 
-void ParticleWidget::initTextures()
+void ParticleWidget::initTexture()
 {
     mTextureUniformID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "textureSampler");
 
@@ -196,9 +179,6 @@ void ParticleWidget::initTextures()
 
     mTextureLImage = new QImage(100, 100, QImage::Format_ARGB32);
     RGBtoLuv(*mTextureImage, *mTextureLImage);
-
-    qDebug() << mTextureImage->pixelColor(99, 99);
-    qDebug() << mTextureLImage->pixelColor(99, 99);
 
     OPENGLFUNC->glGenTextures(1, &mTextureID);
     OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mTextureID);
@@ -240,7 +220,6 @@ void ParticleWidget::updateParticles()
     while(constraint > 0) {
         Particle& p = mParticleContainer[particlePointer];
         float sec = elapsedMsec / 1000.0f;
-        //qDebug() << p.life;
         if(!p.checkLife(sec)) {
             mCurrentParticleNum --;
         }
@@ -362,7 +341,6 @@ void ParticleWidget::genStartPos(Particle& p) {
         QVector3D threeD(mEmitterPosition.x() + twoD.x(), mEmitterPosition.y(), mEmitterPosition.z() + twoD.y());
         p.pos = threeD;
         QVector3D temp = genRandomDir3D(mShape.angle) * mParameter.startSpeed;
-        //qDebug() << temp;
         p.speed = temp;
         p.cameraDistance = (p.pos - cParent->getActiveCamera().getCameraPosition()).length();
     }
@@ -393,7 +371,6 @@ void ParticleWidget::reGenerateSizeCurve(void) {
     aaAaa::aaCurvePtr ct = aaAaa::aaCurveFactory::createCurve(mSizeSpline);
     mSizeCurve.clear();
     ct->getValueList(mSizeCurve, mParameter.startLifeTime * 60, true);
-    qDebug() << "reGen";
 }
 
 aaAaa::aaSpline* ParticleWidget::getSizeSpline() {
@@ -412,20 +389,12 @@ const Physic& ParticleWidget::getPhysic() {
     return mParticlePhysic;
 }
 
-int ParticleWidget::getBlurTimes() {
-    return mBlurTimes;
-}
-
 void ParticleWidget::setGradient(const GradientDescriber& gradient) {
     mGradient = gradient;
 }
 
 void ParticleWidget::setColor(const QColor& color) {
     mColor = color;
-}
-
-void ParticleWidget::setBlurTimes(int time) {
-    mBlurTimes = time;
 }
 
 const QVector3D ParticleWidget::Gravity = QVector3D(0.0f, -9.8f, 0.0f);
