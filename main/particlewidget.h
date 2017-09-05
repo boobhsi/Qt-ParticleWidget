@@ -95,9 +95,9 @@ private:
     
     void initializeGLContent() override;
     void initShader() override;
-    void initTexture() override;
     void initGLBuffer() override;
 
+    void initTextures();
     void resetGL();
     void resetParameters();
 

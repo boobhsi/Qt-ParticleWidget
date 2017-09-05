@@ -17,7 +17,6 @@ void Solid::restart() {
 
 void Solid::initializeGL() {
     initShader();;
-    initTexture();
     initializeGLContent();
     initGLBuffer();
 }

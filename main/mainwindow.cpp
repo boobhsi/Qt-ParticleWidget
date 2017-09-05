@@ -51,9 +51,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     composition->push_back(test);
 
+    GaussianBlur* testGaussian = new GaussianBlur(composition);
+
+    composition->push_back(testGaussian);
+
     comEditor = new Editor(this);
     comEditor->move(640, 10);
-    comEditor->setControlled(test);
+    comEditor->setControlled(test, testGaussian);
 
     test->play();
 

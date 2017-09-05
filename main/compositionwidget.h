@@ -27,9 +27,11 @@ public:
 
     bool isGLReady();
 
+    GLuint getRenderTexture();
+
 private:
     QTimer* timer;
-    Solid* test;
+    std::vector<Solid*> test;
     Camera activeCamera;
     GLuint mProjectionMatrixID;
     float aspect;

@@ -35,16 +35,12 @@ private:
             1.0f, 1.0f, 0.0f,
     };
 
-    GLuint mRenderTextureID;
-    GLuint mFrameBufferID;
-
     GLuint mRenderTextureUniformID;
     GLuint mBlurStepUniformID;
 
     void initializeGLContent() override;
     void initGLBuffer() override;
     void initShader() override;
-    void initTexture() override;
 };
 
 #endif // GAUSSIANBLUR_H

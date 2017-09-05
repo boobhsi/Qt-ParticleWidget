@@ -45,7 +45,7 @@ void CompositionWidget::initializeGL()
     qDebug() << "Composition Initialized!";
     glReady = true;
 
-    test->initializeGL();
+    for(int i=0;i<test.size();i++) test[i]->initializeGL();
 }
 
 void CompositionWidget::resizeGL(int w, int h)
@@ -65,7 +65,7 @@ void CompositionWidget::paintGL()
     OPENGLFUNC->glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     OPENGLFUNC->glViewport(0, 0, width(), height());
-    test->render();
+    for(int i=0;i<test.size();i++) test[i]->render();
 
     OPENGLFUNC->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     renderToScreen();
@@ -78,7 +78,7 @@ const Camera& CompositionWidget::getActiveCamera()
 
 void CompositionWidget::push_back(Solid *input)
 {
-    test = input;
+    test.push_back(input);
 }
 
 void CompositionWidget::setActiveCamera(Camera &ac) {
@@ -156,3 +156,6 @@ bool CompositionWidget::isGLReady() {
     return glReady;
 }
 
+GLuint CompositionWidget::getRenderTexture() {
+    return mRenderTextureID;
+}

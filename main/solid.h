@@ -34,7 +34,6 @@ protected:
 private:
     virtual void initializeGLContent() = 0;
     virtual void initShader() = 0;
-    virtual void initTexture() = 0;
     virtual void initGLBuffer() = 0;
 };
 

@@ -35,6 +35,7 @@ void ParticleWidget::initializeGLContent()
     mRightAxisID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "rightAxis");
 
     resetParameters();
+    initTextures();
 }
 
 void ParticleWidget::initGLBuffer()
@@ -159,7 +160,7 @@ void ParticleWidget::initShader()
         cParent->close();
 }
 
-void ParticleWidget::initTexture()
+void ParticleWidget::initTextures()
 {
     mTextureUniformID = OPENGLFUNC->glGetUniformLocation(mProgram.programId(), "textureSampler");
 

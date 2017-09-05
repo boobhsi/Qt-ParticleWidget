@@ -32,14 +32,16 @@ void Editor::onShowSizeClicked(void)
     ge->show();
 }
 
-void Editor::setControlled(ParticleWidget* toControll) {
+void Editor::setControlled(ParticleWidget* toControll, GaussianBlur* toGaussian) {
     nowControll = toControll;
+    mGaussianBlurControll = toGaussian;
 
     setUItoInitControll();
     connectChangeSignals();
 
     connect(this, SIGNAL(needRestart()), nowControll, SLOT(restart()), Qt::QueuedConnection);
 }
+
 
 void Editor::initUI() {
     ui->colEnbaled->setCheckState(Qt::Unchecked);
@@ -120,7 +122,7 @@ void Editor::connectChangeSignals() {
 
     connect(ui->head, SIGNAL(colorChange()), this, SLOT(onColorChange()));
 
-//    connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
+    connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
 }
 
 void Editor::setUItoInitControll() {
@@ -140,7 +142,7 @@ void Editor::setUItoInitControll() {
     const Physic& phy = nowControll->getPhysic();
     ui->gravity->setValue(phy.gravityModifier);
 
-//    ui->blurTimes->setValue(nowControll->getBlurTimes());
+    ui->blurTimes->setValue(mGaussianBlurControll->getBlurTimes());
 }
 
 void Editor::onEmitterShapeChange() {
@@ -177,5 +179,5 @@ void Editor::onColorChange() {
 }
 
 void Editor::onBlurChange(int a) {
-//    nowControll->setBlurTimes(a);
+    mGaussianBlurControll->setBlurTimes(a);
 }

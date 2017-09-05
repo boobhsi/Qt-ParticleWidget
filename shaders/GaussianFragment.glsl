@@ -20,5 +20,4 @@ void main(void)
     color += texture2D(renderTexture, UV + vec2(0.0f, blurStep * 2.0f)) * 0.1216216216;
     color += texture2D(renderTexture, UV + vec2(0.0f, blurStep * 3.0f)) * 0.0540540541;
     color += texture2D(renderTexture, UV + vec2(0.0f, blurStep * 4.0f)) * 0.0162162162;
-
 }

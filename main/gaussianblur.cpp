@@ -15,10 +15,10 @@ void GaussianBlur::render() {
         OPENGLFUNC->glUseProgram(mGaussianBlurProgram.programId());
 
         OPENGLFUNC->glActiveTexture(GL_TEXTURE0);
-        OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mRenderTextureID);
+        OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, cParent->getRenderTexture());
         OPENGLFUNC->glUniform1i(mRenderTextureUniformID ,0);
 
-        OPENGLFUNC->glUniform1i(mBlurStepUniformID, 1.0 / cParent->size().height());
+        OPENGLFUNC->glUniform1f(mBlurStepUniformID, 1.0 / cParent->size().height());
 
         OPENGLFUNC->glEnableVertexAttribArray(0);
         OPENGLFUNC->glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
@@ -56,6 +56,7 @@ bool GaussianBlur::isPlaying() {
 void GaussianBlur::initializeGLContent()
 {
     mBlurStepUniformID = OPENGLFUNC->glGetUniformLocation(mGaussianBlurProgram.programId(), "blurStep");
+    mRenderTextureUniformID = OPENGLFUNC->glGetUniformLocation(mGaussianBlurProgram.programId(), "renderTexture");
 }
 
 void GaussianBlur::initGLBuffer()
@@ -80,15 +81,10 @@ void GaussianBlur::initShader()
         close();
 }
 
-void GaussianBlur::initTexture()
-{
-    mRenderTextureUniformID = OPENGLFUNC->glGetUniformLocation(mGaussianBlurProgram.programId(), "renderTexture");
+void GaussianBlur::setBlurTimes(int time) {
+    mBlurTimes = time;
+}
 
-    OPENGLFUNC->glGenTextures(1, &mRenderTextureID);
-    OPENGLFUNC->glBindTexture(GL_TEXTURE_2D, mRenderTextureID);
-    OPENGLFUNC->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->cParent->width(), this->cParent->height(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    OPENGLFUNC->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+int GaussianBlur::getBlurTimes() {
+    return mBlurTimes;
 }

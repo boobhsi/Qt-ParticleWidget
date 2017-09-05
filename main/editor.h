@@ -5,6 +5,7 @@
 #include "particlewidget.h"
 #include "CurveEditor/curveeditor/graphiceditor.h"
 #include "colorwidget.h"
+#include "gaussianblur.h"
 
 class ParticleWidget;
 
@@ -20,7 +21,7 @@ public:
     explicit Editor(QWidget *parent = 0);
     ~Editor();
 
-    void setControlled(ParticleWidget* toControll);
+    void setControlled(ParticleWidget* toControll, GaussianBlur* toGaussian);
 
 signals:
     void needRestart(void);
@@ -38,6 +39,7 @@ private slots:
 private:
     Ui::Editor *ui;
     ParticleWidget* nowControll;
+    GaussianBlur* mGaussianBlurControll;
     graphiceditor* ge;
     QPainter* painter;
 

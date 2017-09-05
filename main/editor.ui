@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>630</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,7 +97,7 @@
      <x>10</x>
      <y>130</y>
      <width>281</width>
-     <height>491</height>
+     <height>341</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -109,7 +109,7 @@
       <x>0</x>
       <y>0</y>
       <width>281</width>
-      <height>425</height>
+      <height>275</height>
      </rect>
     </property>
     <attribute name="label">
@@ -121,7 +121,7 @@
        <x>0</x>
        <y>0</y>
        <width>281</width>
-       <height>401</height>
+       <height>321</height>
       </rect>
      </property>
      <property name="verticalScrollBarPolicy">
@@ -142,7 +142,7 @@
         <x>0</x>
         <y>0</y>
         <width>279</width>
-        <height>399</height>
+        <height>319</height>
        </rect>
       </property>
       <widget class="QComboBox" name="typeCombobox">
@@ -288,7 +288,7 @@
       <x>0</x>
       <y>0</y>
       <width>281</width>
-      <height>425</height>
+      <height>275</height>
      </rect>
     </property>
     <attribute name="label">
@@ -324,7 +324,7 @@
       <x>0</x>
       <y>0</y>
       <width>281</width>
-      <height>425</height>
+      <height>275</height>
      </rect>
     </property>
     <attribute name="label">
