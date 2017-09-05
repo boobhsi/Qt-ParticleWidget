@@ -7,7 +7,7 @@
 QT       += core gui
 QT       += opengl
 
-LIBS += -lglut -lGLU
+LIBS += -lGLU
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -43,8 +43,8 @@ SOURCES += \
     editor.cpp \
     colorwidget.cpp \
     gradientdescriber.cpp \
-    gaussianblur.cpp
-#    vectorblur.cpp
+    gaussianblur.cpp \
+    colorlabel.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -64,8 +64,8 @@ HEADERS += \
     editor.h \
     colorwidget.h \
     gradientdescriber.h \
-    gaussianblur.h
-#    vectorblur.h
+    gaussianblur.h \
+    colorlabel.h
 
 FORMS += \
         mainwindow.ui \

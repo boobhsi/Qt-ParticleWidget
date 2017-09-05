@@ -29,6 +29,9 @@ public:
 
     GLuint getRenderTexture();
 
+protected:
+    virtual void paintEvent();
+
 private:
     QTimer* timer;
     std::vector<Solid*> test;

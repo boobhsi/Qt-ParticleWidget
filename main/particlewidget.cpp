@@ -6,7 +6,7 @@ ParticleWidget::ParticleWidget(CompositionWidget *parent) :
     Solid(parent),
     mSizeSpline("Size"),
     mGradient(Qt::white, Qt::red),
-    mColor(Qt::blue)
+    mColor(Qt::red)
 {
     mParticleContainer = new Particle[mParameter.maxParticleNum];
     mParticlePosSizeData = new GLfloat[mParameter.maxParticleNum * 4];
@@ -388,6 +388,13 @@ const EmitParameter& ParticleWidget::getParameter() {
 
 const Physic& ParticleWidget::getPhysic() {
     return mParticlePhysic;
+}
+
+const QColor& ParticleWidget::getColor() {
+    return mColor;
+}
+const GradientDescriber& ParticleWidget::getGradient() {
+    return mGradient;
 }
 
 void ParticleWidget::setGradient(const GradientDescriber& gradient) {

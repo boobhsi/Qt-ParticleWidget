@@ -32,6 +32,9 @@ public:
     const EmitParameter& getParameter();
     const Physic& getPhysic();
 
+    const QColor& getColor();
+    const GradientDescriber& getGradient();
+
     aaAaa::aaSpline* getSizeSpline();
 
     void play() override;

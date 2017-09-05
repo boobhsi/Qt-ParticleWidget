@@ -5,7 +5,9 @@
 #include <QBrush>
 #include <QFrame>
 #include <QLabel>
+#include <QMouseEvent>
 #include "gradientdescriber.h"
+#include "colorlabel.h"
 
 class ColorWidget : public QFrame
 {
@@ -16,10 +18,16 @@ public:
     virtual const QColor& getColor();
     virtual ~ColorWidget();
 
+    void setColor(const QColor& iColor);
+
 protected:
-    virtual void mousePressEvent(QMouseEvent* event);  
+    virtual void mousePressEvent(QMouseEvent* event);
+
+    //for transaparent icon
     QBrush* mBrusher;
     QPalette* mPalette;
+
+    //
     QLabel* mUpper;
 
     virtual void drawPalette();
@@ -42,15 +50,26 @@ public:
     const GradientDescriber& getGradient();
     const QColor& getColor() override;
 
+    void setGradient(const GradientDescriber ig);
+
 signals:
     void gradientChange();
+
+private slots:
+    void onColorChange(const QColor& c, float t);
+    void onColorDelete(float t);
 
 protected:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void drawPalette();
 
 private:
+    typedef std::pair<float, ColorLabel*> Cl;
+
     GradientDescriber* mCurrent;
+    void initGradientPalette();
+    void addGradientLabel(float t, const QColor& color);
+    std::map<float, ColorLabel*> mColorInterfaces;
 };
 
 

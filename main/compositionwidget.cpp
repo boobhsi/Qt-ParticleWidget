@@ -14,6 +14,7 @@ CompositionWidget::CompositionWidget(QWidget* parent) :
     glReady = false;
 }
 
+
 CompositionWidget::~CompositionWidget()
 {
     //delete test;
@@ -159,3 +160,9 @@ bool CompositionWidget::isGLReady() {
 GLuint CompositionWidget::getRenderTexture() {
     return mRenderTextureID;
 }
+
+void CompositionWidget::paintEvent() {
+
+}
+
+

@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     //QSize editorSize(300, 720);
     this->setFixedSize(windowSize);
 
+    testBackground = new QLabel(this);
+    testBackground->setFixedSize(300, 300);
+    QPixmap dial("../res/dial_test");
+    dial = dial.scaled(300, 300);
+    testBackground->setPixmap(dial);
+
     ctrl = new CameraDragger(this);
     ctrl->setFixedSize(compositionSize);
 
@@ -46,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     test->setEmitterShape(shape);
     test->setEnviromentPhysic(enviroment);
     test->setEmitParameter(parameters);
-
     test->setEmitterPosition(QVector3D(0.0f, 0.0f, -100.0f));
 
     composition->push_back(test);
@@ -60,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     comEditor->setControlled(test, testGaussian);
 
     test->play();
+    //composition->hide();
 
 }
 

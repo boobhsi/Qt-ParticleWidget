@@ -48,6 +48,7 @@ void Editor::initUI() {
     ui->graType->setCurrentIndex(0);
     ui->graType->hide();
     ui->head->hide();
+    ui->tail->hide();
 
     connect(ui->solButton, SIGNAL(clicked()), this, SLOT(onShowSizeClicked()));
 
@@ -78,6 +79,7 @@ void Editor::drawPalettePanel(int checked) {
     case 0:
         ui->graType->hide();
         ui->head->hide();
+        ui->tail->hide();
         break;
     case 1:
         break;
@@ -92,13 +94,16 @@ void Editor::drawPalettePanel(int checked) {
 void Editor::brushPaletteLabel(int type) {
     switch(type) {
     case 0:
-        ui->head->setFixedSize(21, 21);
+        ui->head->show();
+        ui->tail->hide();
         break;
     case 1:
-        ui->head->setFixedSize(261, 21);
+        ui->head->hide();
+        ui->tail->show();
         break;
     default:
         ui->head->hide();
+        ui->tail->hide();
         break;
     }
 }
@@ -119,8 +124,8 @@ void Editor::connectChangeSignals() {
 
     connect(ui->colEnbaled, SIGNAL(stateChanged(int)), this, SLOT(onParametersChange()));
     connect(ui->graType, SIGNAL(currentIndexChanged(int)), this, SLOT(onParametersChange()));
-
     connect(ui->head, SIGNAL(colorChange()), this, SLOT(onColorChange()));
+    connect(ui->tail, SIGNAL(gradientChange()), this, SLOT(onGradientChange()));
 
     connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
 }
@@ -143,6 +148,9 @@ void Editor::setUItoInitControll() {
     ui->gravity->setValue(phy.gravityModifier);
 
     ui->blurTimes->setValue(mGaussianBlurControll->getBlurTimes());
+
+    ui->head->setColor(nowControll->getColor());
+    ui->tail->setGradient(nowControll->getGradient());
 }
 
 void Editor::onEmitterShapeChange() {
@@ -180,4 +188,8 @@ void Editor::onColorChange() {
 
 void Editor::onBlurChange(int a) {
     mGaussianBlurControll->setBlurTimes(a);
+}
+
+void Editor::onGradientChange() {
+    nowControll->setGradient(ui->tail->getGradient());
 }
