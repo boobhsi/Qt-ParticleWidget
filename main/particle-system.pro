@@ -41,7 +41,6 @@ SOURCES += \
     CurveEditor/libspline/aaCurve.cpp \
     CurveEditor/libspline/spline.cpp \
     editor.cpp \
-    turbulence.cpp \
     colorwidget.cpp \
     gradientdescriber.cpp \
     colorlabel.cpp
@@ -62,7 +61,6 @@ HEADERS += \
     CurveEditor/libspline/aaCurve.h \
     CurveEditor/libspline/spline.h \
     editor.h \
-    turbulence.h \
     colorwidget.h \
     gradientdescriber.h \
     colorlabel.h
