@@ -44,7 +44,8 @@ SOURCES += \
     colorwidget.cpp \
     gradientdescriber.cpp \
     gaussianblur.cpp \
-    colorlabel.cpp
+    colorlabel.cpp \
+    turbulence.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -65,7 +66,8 @@ HEADERS += \
     colorwidget.h \
     gradientdescriber.h \
     gaussianblur.h \
-    colorlabel.h
+    colorlabel.h \
+    turbulence.h
 
 FORMS += \
         mainwindow.ui \

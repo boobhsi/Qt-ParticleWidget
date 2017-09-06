@@ -37,6 +37,7 @@ private slots:
     void drawPalettePanel(int);
     void brushPaletteLabel(int);
     void onBlurChange(int);
+    void onTurbulenceChange(void);
 
 private:
     Ui::Editor *ui;

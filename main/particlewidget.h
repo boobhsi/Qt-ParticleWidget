@@ -14,6 +14,7 @@
 #include "solid.h"
 #include "CurveEditor/libspline/aaCurve.h"
 #include "editor.h"
+#include "turbulence.h"
 
 class ParticleWidget : public Solid, protected QOpenGLExtraFunctions
 {
@@ -37,6 +38,8 @@ public:
 
     aaAaa::aaSpline* getSizeSpline();
 
+    Turbulence* getTurbulenceField();
+
     void play() override;
     void stop() override;
     void reset(bool replay) override;
@@ -52,6 +55,8 @@ private:
 
     QImage* mTextureImage;
     QImage* mTextureLImage;
+
+    Turbulence* mTurbu;
 
     const GLfloat mParticleVertexData[12] = {
                 -0.5f, -0.5f, 0.0f,

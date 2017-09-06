@@ -72,6 +72,14 @@ void Editor::initUI() {
     ui->gravity->setRange(-100.0f, 100.0f);
 
     ui->blurTimes->setRange(0, 10);
+
+    ui->tRange->setRange(0, 90);
+    ui->tForceAngle->setRange(0, 180);
+
+    ui->tSpeed->setMinimum(0.0f);
+    ui->tLife->setMinimum(0.0f);
+    ui->tForce->setMinimum(0.0f);
+    ui->tScale->setMinimum(0.0f);
 }
 
 void Editor::drawPalettePanel(int checked) {
@@ -128,6 +136,13 @@ void Editor::connectChangeSignals() {
     connect(ui->tail, SIGNAL(gradientChange()), this, SLOT(onGradientChange()));
 
     connect(ui->blurTimes, SIGNAL(valueChanged(int)), this, SLOT(onBlurChange(int)));
+
+    connect(ui->tForce, SIGNAL(valueChanged(int)), this, SLOT(onTurbulenceChange()));
+    connect(ui->tLife, SIGNAL(valueChanged(double)), this, SLOT(onTurbulenceChange()));
+    connect(ui->tRange, SIGNAL(valueChanged(int)), this, SLOT(onTurbulenceChange()));
+    connect(ui->tScale, SIGNAL(valueChanged(double)), this, SLOT(onTurbulenceChange()));
+    connect(ui->tSpeed, SIGNAL(valueChanged(double)), this, SLOT(onTurbulenceChange()));
+    connect(ui->tForceAngle, SIGNAL(valueChanged(double)), this, SLOT(onTurbulenceChange()));
 }
 
 void Editor::setUItoInitControll() {
@@ -192,4 +207,15 @@ void Editor::onBlurChange(int a) {
 
 void Editor::onGradientChange() {
     nowControll->setGradient(ui->tail->getGradient());
+}
+
+void Editor::onTurbulenceChange() {
+    nowControll->getTurbulenceField()->setTurbulenceField(
+                ui->tRange->value(),
+                ui->tForceAngle->value(),
+                ui->tScale->value(),
+                ui->tLife->value(),
+                ui->tSpeed->value(),
+                ui->tForce->value()
+                );
 }

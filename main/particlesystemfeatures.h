@@ -20,6 +20,8 @@ struct EmitterShape{
 
 struct Physic{
     float gravityModifier = 1.0f;
+    float damping = 0.995;
+    float terminalSpeed = 10.0f;
 };
 
 struct EmitParameter{

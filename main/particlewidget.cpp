@@ -16,6 +16,8 @@ ParticleWidget::ParticleWidget(CompositionWidget *parent) :
     mNeedEmit = false;
     mCurrentParticleNum = 0;
 
+    mTurbu = new Turbulence();
+
     resetParameters();
 }
 
@@ -26,6 +28,8 @@ ParticleWidget::~ParticleWidget()
     delete [] mParticleContainer;
     delete [] mParticlePosSizeData;
     delete [] mParticleColorData;
+
+    delete mTurbu;
 }
 
 void ParticleWidget::initializeGLContent()
@@ -205,6 +209,8 @@ void ParticleWidget::initTextures()
 void ParticleWidget::updateParticles()
 {
     int elapsedMsec = mFromStartTime.elapsed();
+    float sec = elapsedMsec / 1000.0f;
+
     if(mParameter.emissionRate < 1000/60+1) {
         if(mFromStartTime.elapsed() > 1000) {
             mFromStartTime.restart();
@@ -214,13 +220,14 @@ void ParticleWidget::updateParticles()
     else {
         mFromStartTime.restart();
     }
+
+    mTurbu->update(sec);
     
     unsigned constraint = mCurrentParticleNum;
     unsigned particlePointer = 0;
     
     while(constraint > 0) {
         Particle& p = mParticleContainer[particlePointer];
-        float sec = elapsedMsec / 1000.0f;
         if(!p.checkLife(sec)) {
             mCurrentParticleNum --;
         }
@@ -353,8 +360,10 @@ void ParticleWidget::genStartPos(Particle& p) {
 
 void ParticleWidget::genPhysicalForce(float sec, Particle& p) {
     QVector3D force(0.0f, 0.0f, 0.0f);
-    force += Gravity * mParticlePhysic.gravityModifier;
+    force += Gravity * mParticlePhysic.gravityModifier + mTurbu->calculate(p);
     p.speed += force * sec * 0.5; //assume mass of particle is 1 and the force is constant.
+    p.speed *= mParticlePhysic.damping;
+    p.speed = p.speed.length() > mParticlePhysic.terminalSpeed ? p.speed.normalized() * mParticlePhysic.terminalSpeed : p.speed;
     p.pos += p.speed * sec; //displacement equal to average speed multiply duration.
     p.cameraDistance = (p.pos - cParent->getActiveCamera().getCameraPosition()).length();
 }
@@ -403,6 +412,10 @@ void ParticleWidget::setGradient(const GradientDescriber& gradient) {
 
 void ParticleWidget::setColor(const QColor& color) {
     mColor = color;
+}
+
+Turbulence* ParticleWidget::getTurbulenceField(){
+    return mTurbu;
 }
 
 const QVector3D ParticleWidget::Gravity = QVector3D(0.0f, -9.8f, 0.0f);
